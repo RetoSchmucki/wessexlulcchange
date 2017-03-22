@@ -382,7 +382,7 @@ agri.out <- agri.out3
 
 index.val <- inla.stack.index(stack.join,'val')$data
 post.agri.val_mean <- agri.out$summary.linear.predictor[index.val,'mean']
-post.agri.val_sd <- agri.out$summary.linear.predictor[index.val,'mean']
+post.agri.val_sd <- agri.out$summary.linear.predictor[index.val,'sd']
 
 invlogit <- function(x) {
 						invl <- exp(x)/(1+exp(x))
