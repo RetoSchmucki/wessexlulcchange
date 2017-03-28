@@ -134,6 +134,8 @@ StampDudleyEdited_50kCLIP
 
 file.copy("P:/NEC04717_WessexBESS/Data/WESSEX_BESS_GIS/WESSEX_BESS_50KmCLIP/land_cover_map_30m.tif",file.path(p_wd,"data"), overwrite = TRUE, recursive = FALSE,
           copy.mode = TRUE, copy.date = FALSE)
+file.copy("P:/NEC04717_WessexBESS/Data/WESSEX_BESS_GIS/WESSEX_BESS_50KmCLIP/stampdudley_rast_30m.tif",file.path(p_wd,"data"), overwrite = TRUE, recursive = FALSE,
+          copy.mode = TRUE, copy.date = FALSE)
 file.copy("P:/NEC04717_WessexBESS/Data/WESSEX_BESS_GIS/WESSEX_BESS_50KmCLIP/elev_dem30mbilinear.tif",file.path(p_wd,"data"), overwrite = TRUE, recursive = FALSE,
           copy.mode = TRUE, copy.date = FALSE)
 file.copy("P:/NEC04717_WessexBESS/Data/WESSEX_BESS_GIS/WESSEX_BESS_50KmCLIP/slope30m.tif",file.path(p_wd,"data"), overwrite = TRUE, recursive = FALSE,
@@ -144,24 +146,30 @@ file.copy("P:/NEC04717_WessexBESS/Data/WESSEX_BESS_GIS/WESSEX_BESS_50KmCLIP/wrb_
 
 grid_crop <- readOGR(file.path(p_wd,"data"),"wessex_grid")
 wessex_boundary <- readOGR(file.path(p_wd,"data"),"Proposed_BESS_Boundary")
-StampDudley <- readOGR(file.path(p_wd,"data"),"StampDudleyEdited_50kCLIP")
+# StampDudley <- readOGR(file.path(p_wd,"data"),"StampDudleyEdited_50kCLIP")
 
+stampdudley <- raster(file.path(p_wd,"data","stampdudley_rast_30m.tif"))
 land_use30m <- raster(file.path(p_wd,"data","land_cover_map_30m.tif"))
 
 elev_dem30m <- raster(file.path(p_wd,"data","elev_dem30mbilinear.tif"))
 slope_dem30m <- raster(file.path(p_wd,"data","slope30m.tif"))
 soil_wrb <- raster(file.path(p_wd,"data","wrb_soil_30m.tif"))
 
-wood_linear <- readOGR(file.path(p_wd,"data"),"WoodyLinearFeatures50kCLIP")
+# wood_linear <- readOGR(file.path(p_wd,"data"),"WoodyLinearFeatures50kCLIP")
+if (file.exists(file.path(p_wd,"data",'roadA_B_Motorway.shp'))) {
+	road <- readOGR(file.path(p_wd,"data"),"roadA_B_Motorway")
+} else {
 road <- readOGR(file.path(p_wd,"data"),"OSroads_50kCLIP")
+road <- road[as.character(road@data$class) %in% c('A Road','B Road','Motorway'),]
+writeOGR(road,dsn = file.path(p_wd,"data"), layer = 'roadA_B_Motorway', driver = "ESRI Shapefile", overwrite_layer = TRUE)
+}
+
 river <- readOGR(file.path(p_wd,"data"),"OSrivers_50kCLIP")
 
 spta_bndry <- readOGR(file.path(p_wd,"data"),"spta_bndry")
 world_heritage <- readOGR(file.path(p_wd,"data"),"WorldHeritageSite50kCLIP")
 ramsar <- readOGR(file.path(p_wd,"data"),"RamsarSite_50kCLIP")
 sssi <- readOGR(file.path(p_wd,"data"),"SSSI_50kCLIP")
-
-road <- road[as.character(road@data$class) %in% c('A Road','B Road','Motorway'),]
 
 river_mask <- mask(land_use30m, gBuffer(river,width=50))
 river_mask[!is.na(river_mask)] <- 1
@@ -253,7 +261,7 @@ dev.off()
 
 
 ##crop one area
-region <- c(22:27,32:37,42:47,52:57,62:67,72:77)
+region <- c(22:27,32:37,42:47) #,52:57,62:67,72:77)
 
 lu_crop <- crop(land_use30m,grid_crop[grid_crop@data$FID %in% region,])
 elev_crop <- crop(elev_dem30m,grid_crop[grid_crop@data$FID %in% region,])
@@ -298,7 +306,7 @@ dev.off()
 
 set.seed(6543)
 coords <- agri.lc.pt[sample(1:1000,250,replace=FALSE),]
-sp.mesh <- inla.mesh.2d(loc=coords,cutoff=500,max.edge=c(1500,5000))
+sp.mesh <- inla.mesh.2d(loc=coords,cutoff=1000,max.edge=c(1500,5000))
 plot(sp.mesh)
 
 agri.spde <- inla.spde2.matern(mesh=sp.mesh,alpha=2)
@@ -348,9 +356,9 @@ stack.pred <- inla.stack(data=list(agri=NA),
 					effects= list(c(s.index, list(Intercept=1))),
 					tag='pred')
 
-stack.join <- inla.stack(stack.est,stack.val,stack.pred)
+stack.join <- inla.stack(stack.est,stack.val) #,stack.pred)
 
-formula <- agri ~ -1 + Intercept + soil + elevation + slope + f(spatial.field, model=spde)
+formula.1 <- agri ~ -1 + Intercept + soil + elevation + slope + f(spatial.field, model=spde)
 formula.2 <- agri ~ -1 + Intercept + soil + slope + f(spatial.field, model=spde)
 formula.3 <- agri ~ -1 + Intercept + f(spatial.field, model=spde)
 
@@ -359,14 +367,14 @@ agri.out <- inla(formula.1,
 			family="binomial",Ntrials=1,
 			control.predictor=list(A=inla.stack.A(stack.join), compute=TRUE),
 			control.fixed = list(expand.factor.strategy='inla'),
-			control.compute=list(dic=TRUE))
+			control.compute=list(dic=TRUE, config=TRUE))
 
 agri.out2 <- inla(formula.2,
 			data=inla.stack.data(stack.join,spde=agri.spde),
 			family="binomial",Ntrials=1,
 			control.predictor=list(A=inla.stack.A(stack.join), compute=TRUE),
 			control.fixed = list(expand.factor.strategy='inla'),
-			control.compute=list(dic=TRUE))
+			control.compute=list(dic=TRUE, config=TRUE))
 
 agri.out3 <- inla(formula.3,
 			data=inla.stack.data(stack.join,spde=agri.spde),
@@ -378,7 +386,10 @@ agri.out3 <- inla(formula.3,
 
 save.image(file="data/lulc.RData")
 
-agri.out <- agri.out3
+agri.out <- agri.out
+
+# posterior sample
+s1 <- inla.posterior.sample(n=1, result=agri.out)
 
 index.val <- inla.stack.index(stack.join,'val')$data
 post.agri.val_mean <- agri.out$summary.linear.predictor[index.val,'mean']
@@ -405,6 +416,7 @@ lines(density(O, adjust=2), lty=1, lwd=2, col=rgb(1,0,0,1))
 dev.off()
 
 index.pred <- inla.stack.index(stack.join,'pred')$data
+post.pred <- agri.out$marginals.fixed
 post.mean.pred <- agri.out3$summary.linear.predictor[index.pred,'mean']
 post.mean.pred <- invlogit(post.mean.pred)
 
