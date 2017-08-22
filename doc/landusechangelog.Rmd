@@ -1,0 +1,102 @@
+---
+author: Reto Schmucki
+output: pdf_document
+---
+
+## land cover change log
+
+```{r, out.width = "400px", echo=FALSE}
+knitr::include_graphics("workingscreen.jpg")
+```
+
+Wessex-BESS focal region
+
+```{r, out.width = "400px", echo=FALSE}
+knitr::include_graphics("C:\\Users\\RETOSCHM\\OneDrive - Natural Environment Research Council\\WessexLULCchange\\figs\\wessex_map.png")
+```
+
+#### WessexBESS Composite Map
+
+| value | land cover | color |
+|-------|------------|-------|
+| 1 |1. Winter wheat |#d7191c|
+| 2 |2. Winter barley|#d7191c|
+| 3 |3. Spring barley|#dc2b24|
+| 4 |4. Oilseed rape |#e13d2c|
+| 5 |5. Field beans  |#e54f35|
+|6|6. Maize|#ea613d|
+|7|7. Potatoes|#ee7346|
+|8|8. Sugar Beet|#f3854e|
+|9|9. Other crop|#f89856|
+|10|10. Improved grass|#fcaa5f|
+|11|11. Traditional orchard|#feb669|
+|12|12. Lowland calcareous grassland|#febf75|
+|13|13. Lowland meadows|#fec980|
+|14|14. Lowland dry acid grassland|#fed38c|
+|15|15. Purple moor grass and rush pastures|#ffdd97|
+|16|16. Calaminarian grassland|#ffe7a3|
+|17|17. Rough low-productivity grassland|#fff1ae|
+|18|18. Lowland heatland|#fffbba|
+|19|19. Coastal vegetated shingle|#fafdbe|
+|20|20. Good quality semi-improved grassland|#f0f9ba|
+|21|21. Deciduous Forest|#e6f5b7|
+|22|22. Coniferous Forest|#dcf1b4|
+|23|23. Lowland fens|#d2edb0|
+|24|24. Lowland bog|#c7e9ad|
+|25|25. Reedbeds|#bde5aa|
+|26|26. Coastal saltmarsh|#b3e0a7|
+|27|27. Coastal and floodplain grazing marsh|#a7dba5|
+|28|28. Littoral sediment|#98d0a7|
+|29|29. Littoral rock|#88c5aa|
+|30|30. Supra-littoral sediment|#79baad|
+|31|31. Supra-littoral rock|#69afb0|
+|32|32. Inland rock|#59a4b2|
+|33|33. Freshwater|#4a99b5|
+|34|34. Salt water|#3a8eb8|
+|35|35. Built up areas and gardens|#7b8286|
+
+
+
+#### SoilScape Map
+
+| value | Soil |
+|-------|------|
+|0 | Fen peat soils | 
+| 1 | Freely draining floodplain soils | 
+| 2 | Freely draining lime-rich loamy soils | 
+| 3 | Freely draining slightly acid but base-rich soils | 
+| 4 | Freely draining slightly acid loamy soils | 
+| 5 | Freely draining slightly acid sandy soils | 
+| 6 | Freely draining very acid sandy and loamy soils | 
+| 7 | Lime-rich loamy and clayey soils with impeded drainage | 
+| 8 | Loamy and clayey floodplain soils with naturally high groundwater | 
+| 9 | Loamy and clayey soils of coastal flats with naturally high groundwater| 
+| 10 | Loamy and sandy soils with naturally high groundwater and a peaty surface | 
+| 11 | Loamy soils with naturally high groundwater | 
+| 12 | Naturally wet very acid sandy and loamy soils | 
+| 13 | Saltmarsh soils | 
+| 14 | Sand dune soils | 
+| 15 | sea | 
+| 16 | Shallow lime-rich soils over chalk or limestone | 
+| 17 | Slightly acid loamy and clayey soils with impeded drainage | 
+| 18 | Slowly permeable seasonally wet acid loamy and clayey soils | 
+| 19 | Slowly permeable seasonally wet slightly acid but base-rich loamy and clayey soils | 
+| 20 | unclassified | 
+| 21 | Very acid loamy upland soils with a wet peaty surface | 
+| 22 | water |
+
+* detail can be found from the LandIS Soil Portal : http://www.landis.org.uk/soilscapes/
+
+
+#### Stamp Dudley Map
+| value|  land Use |  color |
+|------|-----------|--------| 
+| 1 |  Heath and Moorland |  #e4ff10 |  
+| 2 |  Urban |  #e31a1c |  
+| 3 |  Water |  #1f78b4 |  
+| 4 |  Arable |  #ff9d00 |  
+| 5 |  Suburban |  #ff00ee |  
+| 6 |  Meadow and Grass |  #7fce09 |  
+| 7 |  Forest and Woodland |  #006515 |  
+| 8 |  Orchard |  #00d5ff |  
+

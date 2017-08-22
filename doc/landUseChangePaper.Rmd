@@ -1,0 +1,76 @@
+---
+csl: british-ecological-society.csl
+bibliography: landUseChangePaper.bib
+citation_package: natbib
+geometry: a4paper, margin=25mm, portrait
+spacing: double
+output:
+  pdf_document:
+    latex_engine: pdflatex
+    keep_tex: true
+    fig_caption: true
+header-includes:
+- \usepackage[fontsize=12pt]{scrextend}
+- \usepackage[utf8]{inputenc}
+- \renewcommand{\familydefault}{phv}
+- \usepackage{lineno}
+- \linenumbers
+- \usepackage{setspace}
+- \onehalfspacing
+- \raggedright
+
+
+--- 
+
+
+# Building future landscapes to assess impact of land use land cover change on provisioning of ecosystem services  
+  
+\today  
+  
+Reto Schmucki^1^  
+
+^1^ CEH, Benson Lane, MacLean Building, Wallingford, OX10 8BB, UK
+
+
+### Abstract 
+
+LULC change models [@schmucki_regionally_2016] may become fundamental [@aquilue_spatial_2017] tools to accurately inform policy makers and land managers committed to sustainable development, biodiversity  conservation $\sqrt{27}$ and regional assessments of ecosystem services provisioning.
+
+
+### Introduction
+
+Land use are dynamics and change  in configuration [@phillips_opening_2017] and history of land use have important impact on provisioning of $X^2_{i,j}$ ecosystem services.
+
+```{r}
+a <- 2+4
+b <- 1/sqrt(4)
+c <- a/b
+```
+
+```{r chunk_name, echo=FALSE, fig.width=5, fig.height=4, results="hold",  dpi=300}
+
+Beetle <- read.table('http://www.introductoryr.co.uk/Reproducibility/beetles.txt', header=TRUE) #Load data
+
+plot(Beetle$taurus_pron, Beetle$taurus_horn, xlab="Pronotum width (mm)", ylab="Horn length (mm)", type="n") #Plot axes
+pred <- predict(loess(taurus_horn ~ taurus_pron, span=0.5, data=Beetle),  se=TRUE) #Generate predicted vales from loess smoother
+LCI <- pred$fit-2*pred$s #Lower confidence interval (approx)
+UCI <- pred$fit+2*pred$s #Upper confidence interval (approx)
+Xvec <- c(Beetle$taurus_pron,  rev(Beetle$taurus_pron)) #"Wraparound" X values for drawing CI band
+Yvec <- c(LCI, rev(UCI)) ##"Wraparound" Y values for drawing CI band
+polygon(Xvec,Yvec,col="lightblue", border=NA) #Draw the CI band
+lines(Beetle$taurus_pron, pred$fit, col="darkblue") #Draw the fitted loess smoother
+points(Beetle$taurus_pron, Beetle$taurus_horn) #Add the actual data points
+```
+
+
+
+```{r table1, results="asis", echo=FALSE, fig.cap='The super result table'}
+
+mat1<-matrix(rnorm(12), ncol=3) #Generate matrix of random numbers
+colnames(mat1)<-c("Header 1", "Header 2", "Header 3") # Name the columns
+knitr::kable(mat1, digits=3, format="pandoc", caption = 'The super result table')
+
+```
+
+### References
+

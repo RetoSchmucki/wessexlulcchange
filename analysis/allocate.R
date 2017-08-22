@@ -1,6 +1,7 @@
 R --vanilla
 
 ## Initiate and go to R-project
+change 
 
 library(raster)
 library(rgdal)

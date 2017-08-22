@@ -31,6 +31,7 @@ library(ggplot2)
 
 project_name <- "WessexLULCchange"
 
+
 if (dir.exists(normalizePath(file.path(Sys.getenv("HOME"),"OneDrive - Natural Environment Research Council",project_name)))) {
 	cat(paste('You are all set to work on',project_name,'project!','\n'))
 	} else { source(normalizePath(file.path(Sys.getenv("HOME"),"OneDrive - Natural Environment Research Council",project_name,"set_project.R")))
@@ -261,7 +262,7 @@ dev.off()
 
 
 ##crop one area
-region <- c(22:27,32:37,42:47) #,52:57,62:67,72:77)
+region <- c(52:57,62:67,72:77) # 22:27,32:37,42:47) 
 
 lu_crop <- crop(land_use30m,grid_crop[grid_crop@data$FID %in% region,])
 elev_crop <- crop(elev_dem30m,grid_crop[grid_crop@data$FID %in% region,])
@@ -269,9 +270,22 @@ slope_crop <- crop(slope_dem30m,grid_crop[grid_crop@data$FID %in% region,])
 soil_crop <- crop(soil_wrb,grid_crop[grid_crop@data$FID %in% region,])
 mask_crop <- crop(total_mask,grid_crop[grid_crop@data$FID %in% region,])
 
+## function to extract a binary matrix for land cover
+
+bin_landcover <- function(lulc_map=lulc_map,lc_vect=NULL,mask_crop=NULL){
+	lulc_map[lulc_map %in% lc_vect] <- 1
+	lulc_map[!(lulc_map %in% lc_vect)] <- 2
+	lulc_nomask <- stackApply(stack(lulc_map,mask_crop),1,fun=sum,na.rm=TRUE)
+  return(lulc_nomask)
+}
+
 agri <- lu_crop
 agri[agri %in% c(1:9)] <- 1
 agri[agri > 9] <- 2
+
+imp_grass <- lu_crop
+agri[imp_grass %in% c(10)] <- 1
+agri[imp_grass != 10] <- 2
 
 agri_nomask <- stackApply(stack(agri,mask_crop),1,fun=sum,na.rm=TRUE)
 agri_nomask.pt <- rasterToPoints(agri_nomask,spatial=TRUE)
@@ -310,6 +324,7 @@ sp.mesh <- inla.mesh.2d(loc=coords,cutoff=1000,max.edge=c(1500,5000))
 plot(sp.mesh)
 
 agri.spde <- inla.spde2.matern(mesh=sp.mesh,alpha=2)
+agri.spde$n.spde
 
 est.index <- sample(c(1:length(agri.lc.pt)),length(agri.lc.pt),replace=FALSE)[1:round(0.7*length(agri.lc.pt))]
 val.index <- c(1:length(agri.lc.pt))[!(1:length(agri.lc.pt) %in% est.index)]
@@ -362,6 +377,10 @@ formula.1 <- agri ~ -1 + Intercept + soil + elevation + slope + f(spatial.field,
 formula.2 <- agri ~ -1 + Intercept + soil + slope + f(spatial.field, model=spde)
 formula.3 <- agri ~ -1 + Intercept + f(spatial.field, model=spde)
 
+## no spatial field
+formula.4 <- agri ~ -1 + Intercept + soil + elevation + slope
+
+
 agri.out <- inla(formula.1,
 			data=inla.stack.data(stack.join,spde=agri.spde),
 			family="binomial",Ntrials=1,
@@ -382,6 +401,13 @@ agri.out3 <- inla(formula.3,
 			control.predictor=list(A=inla.stack.A(stack.join), compute=TRUE),
 			control.fixed = list(expand.factor.strategy='inla'),
 			control.compute=list(dic=TRUE))
+
+agri.out4 <- inla(formula.4,
+               data=inla.stack.data(stack.join,spde=agri.spde),
+               family="binomial",Ntrials=1,
+               control.predictor=list(A=inla.stack.A(stack.join), compute=TRUE),
+               control.fixed = list(expand.factor.strategy='inla'),
+               control.compute=list(dic=TRUE))
 
 
 save.image(file="data/lulc.RData")
@@ -417,7 +443,7 @@ dev.off()
 
 index.pred <- inla.stack.index(stack.join,'pred')$data
 post.pred <- agri.out$marginals.fixed
-post.mean.pred <- agri.out3$summary.linear.predictor[index.pred,'mean']
+post.mean.pred <- agri.out$summary.linear.predictor[index.pred,'mean']
 post.mean.pred <- invlogit(post.mean.pred)
 
 seq.x.grid <- seq(from=extent(slope_crop)[1],to=extent(slope_crop)[2],by=1000)
