@@ -3,7 +3,7 @@
 ## Analysis and prediction of Land Use/Land Cover in WessexBESS
 ## Created 6 March 2017
 ## Reto Schmucki
-##
+## THis need to be revisited for the SCENARIO project -August 23
 
 ## C:\Users\RETOSCHM\OneDrive - Natural Environment Research Council\WessexLULCchange\analysis\land_cover_probability.R
 
